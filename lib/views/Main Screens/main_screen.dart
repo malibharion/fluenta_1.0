@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'package:fluenta/Custom%20Widgets/custom_button.dart';
-import 'package:fluenta/views/Main%20Screens/main_screen_2.dart'
-    show MainScreen2;
 import 'package:flutter/material.dart';
+import 'package:fluenta/Custom%20Widgets/custom_button.dart';
+import 'package:fluenta/views/Main%20Screens/main_screen_2.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -14,6 +13,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen>
     with SingleTickerProviderStateMixin {
   bool isRecording = false;
+
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _glowAnimation;
@@ -63,8 +63,129 @@ class _MainScreenState extends State<MainScreen>
 
     return SafeArea(
       child: Scaffold(
-        // backgroundColor: const Color(0xFF121212),
         backgroundColor: Colors.white,
+
+        // ✅ Drawer Section
+        drawer: Drawer(
+          backgroundColor: Colors.white,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(30),
+              bottomRight: Radius.circular(30),
+            ),
+          ),
+          child: Column(
+            children: [
+              DrawerHeader(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.purpleAccent, Colors.deepPurple],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: const Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Text(
+                    "Fluenta",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontFamily: 'Bold',
+                    ),
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.info_outline, color: Colors.black87),
+                title: const Text(
+                  "About Us",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontFamily: 'Regular',
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text("About Fluenta"),
+                      content: const Text(
+                        "Fluenta helps you improve your speech, practice exercises, and gain confidence.",
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("Close"),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.question_answer_outlined,
+                  color: Colors.black87,
+                ),
+                title: const Text(
+                  "FAQ",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontFamily: 'Regular',
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text("Frequently Asked Questions"),
+                      content: const Text(
+                        "Q: How do I use Fluenta?\nA: Just tap the mic to start recording and analyze your speech.\n\nQ: Is it free?\nA: Yes!",
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("Close"),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.black87),
+                title: const Text(
+                  "Logout",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontFamily: 'Regular',
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Logged out successfully.")),
+                  );
+                },
+              ),
+              const Spacer(),
+              const Padding(
+                padding: EdgeInsets.all(12.0),
+                child: Text(
+                  "Version 1.0.0",
+                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                ),
+              ),
+            ],
+          ),
+        ),
+
         body: Center(
           child: Column(
             children: [
@@ -113,7 +234,7 @@ class _MainScreenState extends State<MainScreen>
               ),
               SizedBox(height: screenHeight * 0.1),
 
-              // Cool Animated Mic Button 🎤
+              //  Animated Mic Button
               GestureDetector(
                 onTap: toggleRecording,
                 child: AnimatedBuilder(
@@ -140,18 +261,17 @@ class _MainScreenState extends State<MainScreen>
                           boxShadow: isRecording
                               ? [
                                   BoxShadow(
-                                    color: Colors.blueAccent.withOpacity(
-                                      glow * 0.9,
+                                    color: Colors.purpleAccent.withOpacity(
+                                      glow,
                                     ),
                                     blurRadius: 40,
                                     spreadRadius: 8,
                                   ),
                                 ]
                               : [
-                                  BoxShadow(
-                                    color: Colors.black87,
-                                    blurRadius: 20,
-                                    blurStyle: BlurStyle.inner,
+                                  const BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 10,
                                   ),
                                 ],
                         ),
@@ -166,11 +286,11 @@ class _MainScreenState extends State<MainScreen>
                 ),
               ),
 
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               AnimatedOpacity(
                 duration: const Duration(milliseconds: 500),
                 opacity: isRecording ? 1.0 : 0.0,
-                child: Text(
+                child: const Text(
                   "Listening...",
                   style: TextStyle(
                     color: Colors.black,
@@ -179,14 +299,18 @@ class _MainScreenState extends State<MainScreen>
                   ),
                 ),
               ),
-              Spacer(),
+              const Spacer(),
+
+      
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 27),
                 child: CustomBtn(
                   onPress: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => MainScreen2()),
+                      MaterialPageRoute(
+                        builder: (context) => const MainScreen2(),
+                      ),
                     );
                   },
                   screenHeight: screenHeight,

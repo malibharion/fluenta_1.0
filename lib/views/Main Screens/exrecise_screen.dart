@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 
 class ExerciseScreen extends StatefulWidget {
   const ExerciseScreen({super.key});
@@ -18,10 +19,32 @@ class _ExerciseScreenState extends State<ExerciseScreen>
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _glowAnimation;
+  late VideoPlayerController _videoController;
 
   @override
   void initState() {
     super.initState();
+
+    // _videoController =
+    //     VideoPlayerController.asset('assets/videos/videoAvatar.mp4')
+    //       ..initialize().then((_) {
+    //         _videoController.setLooping(true);
+    //         _videoController.play();
+    //         setState(() {});
+    //       });
+    // _videoController =
+    //     VideoPlayerController.asset('assets/videos/videoAvatar.mp4')
+    //       ..initialize().then((_) {
+    //         _videoController.setLooping(true);
+    //         setState(() {});
+    //       });
+    _videoController =
+        VideoPlayerController.asset('assets/videos/videoAvatar.mp4')
+          ..initialize().then((_) {
+            _videoController.setLooping(true);
+            _videoController.pause();
+            setState(() {});
+          });
 
     _controller = AnimationController(
       vsync: this,
@@ -40,23 +63,60 @@ class _ExerciseScreenState extends State<ExerciseScreen>
   }
 
   @override
+  @override
   void dispose() {
+    _videoController.pause();
+    _videoController.dispose();
     _controller.dispose();
     progressTimer?.cancel();
     super.dispose();
   }
 
+  // void toggleRecording() {
+  //   if (showResult) return;
+
+  //   setState(() {
+  //     isRecording = !isRecording;
+  //   });
+
+  //   if (isRecording) {
+  //     _controller.repeat(reverse: true);
+  //     _startProgress();
+  //   } else {
+  //     _controller.stop();
+  //     _resetProgress();
+  //   }
+  // }
+  // void toggleRecording() {
+  //   if (showResult) return;
+
+  //   setState(() {
+  //     isRecording = !isRecording;
+  //   });
+
+  //   if (isRecording) {
+  //     _videoController.play(); 
+  //     _controller.repeat(reverse: true);
+  //     _startProgress();
+  //   } else {
+  //     _videoController.pause(); // ⏸ Pause video
+  //     _controller.stop();
+  //     _resetProgress();
+  //   }
+  // }
   void toggleRecording() {
-    if (showResult) return; // Disable after showing result
+    if (showResult) return;
 
     setState(() {
       isRecording = !isRecording;
     });
 
     if (isRecording) {
+      _videoController.play(); // ▶️ Play video
       _controller.repeat(reverse: true);
       _startProgress();
     } else {
+      _videoController.pause(); // ⏸ Pause video
       _controller.stop();
       _resetProgress();
     }
@@ -100,7 +160,42 @@ class _ExerciseScreenState extends State<ExerciseScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              /// 🎤 Glowing Recording Button
+              if (_videoController.value.isInitialized)
+                AnimatedOpacity(
+                  opacity: isRecording ? 1.0 : 0.4,
+                  duration: const Duration(milliseconds: 500),
+                  child: Container(
+                    height: MediaQuery.of(context).size.height * 0.35,
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(25),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Stack(
+                      children: [
+                        FittedBox(
+                          fit: BoxFit.cover,
+                          child: SizedBox(
+                            width: _videoController.value.size.width,
+                            height: _videoController.value.size.height,
+                            child: VideoPlayer(_videoController),
+                          ),
+                        ),
+                        Container(color: Colors.black.withOpacity(0.15)),
+                      ],
+                    ),
+                  ),
+                ),
+
+              SizedBox(height: screenHeight * 0.04),
+
               GestureDetector(
                 onTap: toggleRecording,
                 child: AnimatedBuilder(
@@ -180,48 +275,6 @@ class _ExerciseScreenState extends State<ExerciseScreen>
               SizedBox(height: screenHeight * 0.05),
 
               /// 🎚️ Progress Bar
-              AnimatedOpacity(
-                opacity: isRecording ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 400),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 250,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Stack(
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: 250 * progressValue,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              gradient: const LinearGradient(
-                                colors: [
-                                  Colors.blueAccent,
-                                  Colors.purpleAccent,
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "${(progressValue * 100).toInt()}%",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
 
               /// 🟣 View Result Button (shows after completion)
               if (showResult) ...[
@@ -256,7 +309,7 @@ class _ExerciseScreenState extends State<ExerciseScreen>
     );
   }
 
-  /// 🎯 Result Dialog
+
   void _showResultDialog(BuildContext context) {
     showDialog(
       context: context,
