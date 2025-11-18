@@ -65,7 +65,6 @@ class _MainScreenState extends State<MainScreen>
       child: Scaffold(
         backgroundColor: Colors.white,
 
-        // ✅ Drawer Section
         drawer: Drawer(
           backgroundColor: Colors.white,
           shape: const RoundedRectangleBorder(
@@ -145,7 +144,7 @@ class _MainScreenState extends State<MainScreen>
                     builder: (_) => AlertDialog(
                       title: const Text("Frequently Asked Questions"),
                       content: const Text(
-                        "Q: How do I use Fluenta?\nA: Just tap the mic to start recording and analyze your speech.\n\nQ: Is it free?\nA: Yes!",
+                        "Q: How do I use Fluenta?\nA: Tap the mic to start recording.\n\nQ: Is it free?\nA: Yes!",
                       ),
                       actions: [
                         TextButton(
@@ -186,10 +185,26 @@ class _MainScreenState extends State<MainScreen>
           ),
         ),
 
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          automaticallyImplyLeading: false, // ← removes back arrow
+          leading: Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu, color: Colors.black),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            ),
+          ),
+        ),
+
         body: Center(
           child: Column(
             children: [
-              SizedBox(height: screenHeight * 0.05),
+              SizedBox(height: screenHeight * 0.02),
+
+              /// TITLE
               Row(
                 children: [
                   SizedBox(width: screenWidth * 0.05),
@@ -232,9 +247,10 @@ class _MainScreenState extends State<MainScreen>
                   ),
                 ],
               ),
-              SizedBox(height: screenHeight * 0.1),
 
-              //  Animated Mic Button
+              SizedBox(height: screenHeight * 0.08),
+
+              /// MIC BUTTON
               GestureDetector(
                 onTap: toggleRecording,
                 child: AnimatedBuilder(
@@ -246,8 +262,8 @@ class _MainScreenState extends State<MainScreen>
                     return Transform.scale(
                       scale: scale,
                       child: Container(
-                        width: 150,
-                        height: 150,
+                        width: 110,
+                        height: 110,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: LinearGradient(
@@ -264,20 +280,20 @@ class _MainScreenState extends State<MainScreen>
                                     color: Colors.purpleAccent.withOpacity(
                                       glow,
                                     ),
-                                    blurRadius: 40,
-                                    spreadRadius: 8,
+                                    blurRadius: 30,
+                                    spreadRadius: 6,
                                   ),
                                 ]
                               : [
                                   const BoxShadow(
                                     color: Colors.black26,
-                                    blurRadius: 10,
+                                    blurRadius: 8,
                                   ),
                                 ],
                         ),
                         child: Icon(
                           isRecording ? Icons.stop_rounded : Icons.mic_rounded,
-                          size: 70,
+                          size: 50,
                           color: isRecording ? Colors.white : Colors.black87,
                         ),
                       ),
@@ -301,7 +317,7 @@ class _MainScreenState extends State<MainScreen>
               ),
               const Spacer(),
 
-      
+              /// START EXERCISE BUTTON
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 27),
                 child: CustomBtn(
@@ -318,6 +334,7 @@ class _MainScreenState extends State<MainScreen>
                   text: 'Start Exercise',
                 ),
               ),
+
               SizedBox(height: screenHeight * 0.1),
             ],
           ),

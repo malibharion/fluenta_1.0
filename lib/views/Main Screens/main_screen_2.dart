@@ -46,7 +46,7 @@ class _MainScreen2State extends State<MainScreen2>
         ),
         centerTitle: true,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
+          preferredSize: const Size.fromHeight(90),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
@@ -83,8 +83,7 @@ class _MainScreen2State extends State<MainScreen2>
                       ),
                     ],
                   ),
-                  indicatorSize:
-                      TabBarIndicatorSize.tab, 
+                  indicatorSize: TabBarIndicatorSize.tab,
                   labelColor: Colors.white,
                   unselectedLabelColor: Colors.black87,
                   labelStyle: const TextStyle(fontFamily: "Bold", fontSize: 16),
@@ -94,8 +93,11 @@ class _MainScreen2State extends State<MainScreen2>
                   ),
                   labelPadding: EdgeInsets.zero,
                   tabs: const [
-                    Tab(icon: Icon(Icons.spa_rounded), text: "Beginner"),
-                    Tab(icon: Icon(Icons.flash_on_rounded), text: "Advanced"),
+                    Tab(
+                      icon: Icon(Icons.developer_board),
+                      text: "Developmental",
+                    ),
+                    Tab(icon: Icon(Icons.memory), text: "Neurogenic"),
                   ],
                 ),
               ),
@@ -103,7 +105,6 @@ class _MainScreen2State extends State<MainScreen2>
           ),
         ),
       ),
-
 
       body: TabBarView(
         controller: _tabController,
@@ -120,7 +121,6 @@ class _MainScreen2State extends State<MainScreen2>
       ),
     );
   }
-
 
   Widget _buildExerciseList(
     BuildContext context,

@@ -95,7 +95,7 @@ class _ExerciseScreenState extends State<ExerciseScreen>
   //   });
 
   //   if (isRecording) {
-  //     _videoController.play(); 
+  //     _videoController.play();
   //     _controller.repeat(reverse: true);
   //     _startProgress();
   //   } else {
@@ -112,7 +112,7 @@ class _ExerciseScreenState extends State<ExerciseScreen>
     });
 
     if (isRecording) {
-      _videoController.play(); // ▶️ Play video
+      _videoController.play();
       _controller.repeat(reverse: true);
       _startProgress();
     } else {
@@ -156,159 +156,148 @@ class _ExerciseScreenState extends State<ExerciseScreen>
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (_videoController.value.isInitialized)
-                AnimatedOpacity(
-                  opacity: isRecording ? 1.0 : 0.4,
-                  duration: const Duration(milliseconds: 500),
-                  child: Container(
-                    height: MediaQuery.of(context).size.height * 0.35,
-                    width: MediaQuery.of(context).size.width * 0.7,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(25),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Stack(
-                      children: [
-                        FittedBox(
-                          fit: BoxFit.cover,
-                          child: SizedBox(
-                            width: _videoController.value.size.width,
-                            height: _videoController.value.size.height,
-                            child: VideoPlayer(_videoController),
+        body: Stack(
+          children: [
+            // Video Avatar at top
+            Positioned(
+              top: 50,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: _videoController.value.isInitialized
+                    ? AnimatedOpacity(
+                        opacity: isRecording ? 1.0 : 0.4,
+                        duration: const Duration(milliseconds: 500),
+                        child: Container(
+                          height: MediaQuery.of(context).size.height * 0.35,
+                          width: MediaQuery.of(context).size.width * 0.7,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(25),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 12,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Stack(
+                            children: [
+                              FittedBox(
+                                fit: BoxFit.cover,
+                                child: SizedBox(
+                                  width: _videoController.value.size.width,
+                                  height: _videoController.value.size.height,
+                                  child: VideoPlayer(_videoController),
+                                ),
+                              ),
+                              Container(color: Colors.black.withOpacity(0.15)),
+                            ],
                           ),
                         ),
-                        Container(color: Colors.black.withOpacity(0.15)),
-                      ],
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ),
+
+            // Bottom controls
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 80.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Animated Play/Pause Button
+                    GestureDetector(
+                      onTap: toggleRecording,
+                      child: AnimatedBuilder(
+                        animation: _controller,
+                        builder: (context, _) {
+                          final scale = isRecording
+                              ? _scaleAnimation.value
+                              : 1.0;
+                          final glow = isRecording ? _glowAnimation.value : 0.0;
+
+                          return Transform.scale(
+                            scale: scale,
+                            child: Container(
+                              width: 110,
+                              height: 110,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  colors: isRecording
+                                      ? [
+                                          Colors.blueAccent.withOpacity(0.9),
+                                          Colors.purpleAccent.withOpacity(0.9),
+                                        ]
+                                      : [Colors.white, Colors.white70],
+                                ),
+                                boxShadow: isRecording
+                                    ? [
+                                        BoxShadow(
+                                          color: Colors.blueAccent.withOpacity(
+                                            glow * 0.9,
+                                          ),
+                                          blurRadius: 40,
+                                          spreadRadius: 8,
+                                        ),
+                                      ]
+                                    : [
+                                        const BoxShadow(
+                                          color: Colors.black26,
+                                          blurRadius: 15,
+                                          offset: Offset(0, 6),
+                                        ),
+                                      ],
+                              ),
+                              child: Icon(
+                                isRecording
+                                    ? Icons.stop_rounded
+                                    : Icons.play_arrow_rounded,
+                                size: 50,
+                                color: isRecording
+                                    ? Colors.white
+                                    : Colors.black87,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ),
 
-              SizedBox(height: screenHeight * 0.04),
+                    const SizedBox(height: 30),
 
-              GestureDetector(
-                onTap: toggleRecording,
-                child: AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, _) {
-                    final scale = isRecording ? _scaleAnimation.value : 1.0;
-                    final glow = isRecording ? _glowAnimation.value : 0.0;
-
-                    return Transform.scale(
-                      scale: scale,
-                      child: Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: isRecording
-                                ? [
-                                    Colors.blueAccent.withOpacity(0.9),
-                                    Colors.purpleAccent.withOpacity(0.9),
-                                  ]
-                                : [Colors.white, Colors.white70],
-                          ),
-                          boxShadow: isRecording
-                              ? [
-                                  BoxShadow(
-                                    color: Colors.blueAccent.withOpacity(
-                                      glow * 0.9,
-                                    ),
-                                    blurRadius: 40,
-                                    spreadRadius: 8,
-                                  ),
-                                ]
-                              : [
-                                  const BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 15,
-                                    offset: Offset(0, 6),
-                                  ),
-                                ],
-                        ),
-                        child: Icon(
-                          isRecording
-                              ? Icons.stop_rounded
-                              : Icons.play_arrow_rounded,
-                          size: 70,
-                          color: isRecording ? Colors.white : Colors.black87,
+                    // Status text
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 400),
+                      transitionBuilder: (child, animation) =>
+                          FadeTransition(opacity: animation, child: child),
+                      child: Text(
+                        isRecording
+                            ? "Listening..."
+                            : showResult
+                            ? "Exercise Completed"
+                            : "Start Exercise",
+                        key: ValueKey(isRecording),
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
               ),
-
-              SizedBox(height: screenHeight * 0.04),
-
-              /// 🔤 Status Text
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 400),
-                transitionBuilder: (child, animation) =>
-                    FadeTransition(opacity: animation, child: child),
-                child: Text(
-                  isRecording
-                      ? "Listening..."
-                      : showResult
-                      ? "Exercise Completed"
-                      : "Start Exercise",
-                  key: ValueKey(isRecording),
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-
-              SizedBox(height: screenHeight * 0.05),
-
-              /// 🎚️ Progress Bar
-
-              /// 🟣 View Result Button (shows after completion)
-              if (showResult) ...[
-                SizedBox(height: screenHeight * 0.08),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurpleAccent,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 14,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 8,
-                    shadowColor: Colors.purpleAccent.withOpacity(0.5),
-                  ),
-                  onPressed: () {
-                    _showResultDialog(context);
-                  },
-                  child: const Text(
-                    "View Result",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ],
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
-
 
   void _showResultDialog(BuildContext context) {
     showDialog(
@@ -366,7 +355,7 @@ class _ExerciseScreenState extends State<ExerciseScreen>
                 ),
                 const SizedBox(height: 12),
                 const Text(
-                  "AI Analysis Complete\nGreat Progress 🔥",
+                  "AI Analysis Complete\nGreat Progress ",
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.black54, fontSize: 16),
                 ),
