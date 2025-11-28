@@ -13,6 +13,7 @@ class _ExerciseScreenState extends State<ExerciseScreen>
     with TickerProviderStateMixin {
   bool isRecording = false;
   bool showResult = false;
+
   double progressValue = 0.0;
   Timer? progressTimer;
 
@@ -25,19 +26,6 @@ class _ExerciseScreenState extends State<ExerciseScreen>
   void initState() {
     super.initState();
 
-    // _videoController =
-    //     VideoPlayerController.asset('assets/videos/videoAvatar.mp4')
-    //       ..initialize().then((_) {
-    //         _videoController.setLooping(true);
-    //         _videoController.play();
-    //         setState(() {});
-    //       });
-    // _videoController =
-    //     VideoPlayerController.asset('assets/videos/videoAvatar.mp4')
-    //       ..initialize().then((_) {
-    //         _videoController.setLooping(true);
-    //         setState(() {});
-    //       });
     _videoController =
         VideoPlayerController.asset('assets/videos/videoAvatar.mp4')
           ..initialize().then((_) {
@@ -63,7 +51,6 @@ class _ExerciseScreenState extends State<ExerciseScreen>
   }
 
   @override
-  @override
   void dispose() {
     _videoController.pause();
     _videoController.dispose();
@@ -72,38 +59,6 @@ class _ExerciseScreenState extends State<ExerciseScreen>
     super.dispose();
   }
 
-  // void toggleRecording() {
-  //   if (showResult) return;
-
-  //   setState(() {
-  //     isRecording = !isRecording;
-  //   });
-
-  //   if (isRecording) {
-  //     _controller.repeat(reverse: true);
-  //     _startProgress();
-  //   } else {
-  //     _controller.stop();
-  //     _resetProgress();
-  //   }
-  // }
-  // void toggleRecording() {
-  //   if (showResult) return;
-
-  //   setState(() {
-  //     isRecording = !isRecording;
-  //   });
-
-  //   if (isRecording) {
-  //     _videoController.play();
-  //     _controller.repeat(reverse: true);
-  //     _startProgress();
-  //   } else {
-  //     _videoController.pause(); // ⏸ Pause video
-  //     _controller.stop();
-  //     _resetProgress();
-  //   }
-  // }
   void toggleRecording() {
     if (showResult) return;
 
@@ -116,7 +71,7 @@ class _ExerciseScreenState extends State<ExerciseScreen>
       _controller.repeat(reverse: true);
       _startProgress();
     } else {
-      _videoController.pause(); // ⏸ Pause video
+      _videoController.pause();
       _controller.stop();
       _resetProgress();
     }
@@ -125,16 +80,17 @@ class _ExerciseScreenState extends State<ExerciseScreen>
   void _startProgress() {
     progressValue = 0;
     progressTimer?.cancel();
-    progressTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+
+    progressTimer = Timer.periodic(const Duration(milliseconds: 70), (timer) {
       setState(() {
         if (progressValue < 1.0) {
-          progressValue += 0.02; // fills in about 5 seconds
+          progressValue += 0.015;
         } else {
           timer.cancel();
-          Future.delayed(const Duration(milliseconds: 600), () {
+          Future.delayed(const Duration(milliseconds: 500), () {
             setState(() {
               isRecording = false;
-              showResult = true; // Show "View Result" button
+              showResult = true;
             });
           });
         }
@@ -151,14 +107,12 @@ class _ExerciseScreenState extends State<ExerciseScreen>
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
         body: Stack(
           children: [
-            // Video Avatar at top
+            // Video Avatar -------------------------------------------------
             Positioned(
               top: 50,
               left: 0,
@@ -201,7 +155,7 @@ class _ExerciseScreenState extends State<ExerciseScreen>
               ),
             ),
 
-            // Bottom controls
+            // Bottom Controls -----------------------------------------------
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
@@ -209,7 +163,37 @@ class _ExerciseScreenState extends State<ExerciseScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Animated Play/Pause Button
+                    // Progress Bar -----------------------------------------
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      height: 12,
+                      width: 260,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.grey.shade300,
+                      ),
+                      child: Stack(
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 100),
+                            width: 260 * progressValue,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Colors.purpleAccent,
+                                  Colors.blueAccent,
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    // Main Start/Stop Button -------------------------------
                     GestureDetector(
                       onTap: toggleRecording,
                       child: AnimatedBuilder(
@@ -268,26 +252,40 @@ class _ExerciseScreenState extends State<ExerciseScreen>
                       ),
                     ),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 25),
 
-                    // Status text
+                    // Status or View Result -------------------------------
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 400),
-                      transitionBuilder: (child, animation) =>
-                          FadeTransition(opacity: animation, child: child),
-                      child: Text(
-                        isRecording
-                            ? "Listening..."
-                            : showResult
-                            ? "Exercise Completed"
-                            : "Start Exercise",
-                        key: ValueKey(isRecording),
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      child: showResult
+                          ? ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.purpleAccent,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 40,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                              onPressed: () => _showResultDialog(context),
+                              child: const Text(
+                                "View Result",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            )
+                          : Text(
+                              isRecording ? "Listening..." : "Start Exercise",
+                              style: const TextStyle(
+                                color: Colors.black87,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                     ),
                   ],
                 ),
@@ -310,7 +308,7 @@ class _ExerciseScreenState extends State<ExerciseScreen>
           backgroundColor: Colors.white,
           child: Container(
             padding: const EdgeInsets.all(20),
-            width: 300,
+            width: 280,
             height: 300,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -323,7 +321,9 @@ class _ExerciseScreenState extends State<ExerciseScreen>
                     color: Colors.black87,
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
+
+                // Animated result progress
                 TweenAnimationBuilder<double>(
                   tween: Tween(begin: 0, end: 0.85),
                   duration: const Duration(seconds: 2),
@@ -347,15 +347,17 @@ class _ExerciseScreenState extends State<ExerciseScreen>
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
+                          color: Colors.purple,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+
+                const SizedBox(height: 20),
+
                 const Text(
-                  "AI Analysis Complete\nGreat Progress ",
+                  "AI Analysis Complete\nGreat Progress!",
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.black54, fontSize: 16),
                 ),

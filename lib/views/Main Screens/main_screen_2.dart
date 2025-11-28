@@ -66,8 +66,7 @@ class _MainScreen2State extends State<MainScreen2>
                 color: Colors.transparent,
                 child: TabBar(
                   controller: _tabController,
-                  isScrollable:
-                      false, // ✅ ensures tabs are evenly spaced across width
+                  isScrollable: false,
                   indicator: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)],
