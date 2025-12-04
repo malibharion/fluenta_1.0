@@ -1,7 +1,7 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:fluenta/Custom%20Widgets/custom_button.dart';
-import 'package:fluenta/views/Main%20Screens/main_screen_2.dart';
+import 'package:fluenta/Custom Widgets/custom_button.dart';
+import 'package:fluenta/views/Main Screens/main_screen_2.dart';
+import 'package:video_player/video_player.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -13,8 +13,11 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen>
     with SingleTickerProviderStateMixin {
   bool isRecording = false;
+  bool isAvatarPlaying = false;
 
   late AnimationController _controller;
+  late VideoPlayerController _videoController;
+
   late Animation<double> _scaleAnimation;
   late Animation<double> _glowAnimation;
 
@@ -22,32 +25,46 @@ class _MainScreenState extends State<MainScreen>
   void initState() {
     super.initState();
 
+    _videoController =
+        VideoPlayerController.asset('assets/videos/videoAvatar.mp4')
+          ..initialize().then((_) {
+            setState(() {});
+          });
+
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 1),
+      duration: const Duration(milliseconds: 900),
     )..repeat(reverse: true);
 
-    _scaleAnimation = Tween<double>(
+    _scaleAnimation = Tween(
       begin: 1.0,
-      end: 1.1,
+      end: 1.06,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
-    _glowAnimation = Tween<double>(
+    _glowAnimation = Tween(
       begin: 0.2,
-      end: 0.8,
+      end: 0.7,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
   void dispose() {
+    _videoController.dispose();
     _controller.dispose();
     super.dispose();
   }
 
+  void toggleAvatar() {
+    if (isAvatarPlaying) {
+      _videoController.pause();
+    } else {
+      _videoController.play();
+    }
+    setState(() => isAvatarPlaying = !isAvatarPlaying);
+  }
+
   void toggleRecording() {
-    setState(() {
-      isRecording = !isRecording;
-    });
+    setState(() => isRecording = !isRecording);
 
     if (isRecording) {
       _controller.repeat(reverse: true);
@@ -58,8 +75,8 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final w = MediaQuery.of(context).size.width;
+    final h = MediaQuery.of(context).size.height;
 
     return SafeArea(
       child: Scaffold(
@@ -79,8 +96,6 @@ class _MainScreenState extends State<MainScreen>
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [Colors.purpleAccent, Colors.deepPurple],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
                   ),
                 ),
                 child: const Align(
@@ -89,98 +104,26 @@ class _MainScreenState extends State<MainScreen>
                     "Fluenta",
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 28,
+                      fontSize: 26,
                       fontFamily: 'Bold',
                     ),
                   ),
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.info_outline, color: Colors.black87),
-                title: const Text(
-                  "About Us",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontFamily: 'Regular',
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  showDialog(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      title: const Text("About Fluenta"),
-                      content: const Text(
-                        "Fluenta helps you improve your speech, practice exercises, and gain confidence.",
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text("Close"),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+              const ListTile(
+                leading: Icon(Icons.info_outline),
+                title: Text("About Us"),
               ),
-              ListTile(
-                leading: const Icon(
-                  Icons.question_answer_outlined,
-                  color: Colors.black87,
-                ),
-                title: const Text(
-                  "FAQ",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontFamily: 'Regular',
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  showDialog(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      title: const Text("Frequently Asked Questions"),
-                      content: const Text(
-                        "Q: How do I use Fluenta?\nA: Tap the mic to start recording.\n\nQ: Is it free?\nA: Yes!",
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text("Close"),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+              const ListTile(
+                leading: Icon(Icons.question_answer_outlined),
+                title: Text("FAQ"),
               ),
-              ListTile(
-                leading: const Icon(Icons.logout, color: Colors.black87),
-                title: const Text(
-                  "Logout",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontFamily: 'Regular',
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Logged out successfully.")),
-                  );
-                },
+              const ListTile(
+                leading: Icon(Icons.logout),
+                title: Text("Logout"),
               ),
               const Spacer(),
-              const Padding(
-                padding: EdgeInsets.all(12.0),
-                child: Text(
-                  "Version 1.0.0",
-                  style: TextStyle(color: Colors.grey, fontSize: 13),
-                ),
-              ),
+              const Text("Version 1.0.0"),
             ],
           ),
         ),
@@ -188,154 +131,164 @@ class _MainScreenState extends State<MainScreen>
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
-          automaticallyImplyLeading: false, // ← removes back arrow
           leading: Builder(
             builder: (context) => IconButton(
               icon: const Icon(Icons.menu, color: Colors.black),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
+              onPressed: () => Scaffold.of(context).openDrawer(),
             ),
           ),
         ),
 
-        body: Center(
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: screenHeight * 0.02),
+              SizedBox(height: h * 0.01),
 
-              /// TITLE
-              Row(
-                children: [
-                  SizedBox(width: screenWidth * 0.05),
-                  Text(
-                    'Record ',
-                    style: TextStyle(
-                      fontFamily: 'Bold',
-                      fontSize: screenWidth * 0.10,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    ', Analyze ',
-                    style: TextStyle(
-                      fontFamily: 'Bold',
-                      fontSize: screenWidth * 0.10,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
+              /// 🔹 Heading
+              Text(
+                "Record, Analyze",
+                style: TextStyle(
+                  fontFamily: 'Bold',
+                  fontSize: w * 0.09,
+                  color: Colors.black,
+                ),
               ),
-              Row(
-                children: [
-                  SizedBox(width: screenWidth * 0.05),
-                  Text(
-                    '& ',
-                    style: TextStyle(
-                      fontFamily: 'Bold',
-                      fontSize: screenWidth * 0.10,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  Text(
-                    'Test your speech',
-                    style: TextStyle(
-                      fontFamily: 'Bold',
-                      fontSize: screenWidth * 0.09,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: screenHeight * 0.08),
-
-              /// MIC BUTTON
-              GestureDetector(
-                onTap: toggleRecording,
-                child: AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, _) {
-                    final scale = isRecording ? _scaleAnimation.value : 1.0;
-                    final glow = isRecording ? _glowAnimation.value : 0.0;
-
-                    return Transform.scale(
-                      scale: scale,
-                      child: Container(
-                        width: 110,
-                        height: 110,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: isRecording
-                                ? [
-                                    Colors.blueAccent.withOpacity(0.9),
-                                    Colors.purpleAccent.withOpacity(0.9),
-                                  ]
-                                : [Colors.white, Colors.white70],
-                          ),
-                          boxShadow: isRecording
-                              ? [
-                                  BoxShadow(
-                                    color: Colors.purpleAccent.withOpacity(
-                                      glow,
-                                    ),
-                                    blurRadius: 30,
-                                    spreadRadius: 6,
-                                  ),
-                                ]
-                              : [
-                                  const BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 8,
-                                  ),
-                                ],
-                        ),
-                        child: Icon(
-                          isRecording ? Icons.stop_rounded : Icons.mic_rounded,
-                          size: 50,
-                          color: isRecording ? Colors.white : Colors.black87,
-                        ),
-                      ),
-                    );
-                  },
+              Text(
+                "and Test your speech",
+                style: TextStyle(
+                  fontFamily: 'Bold',
+                  fontSize: w * 0.085,
+                  color: Colors.grey[700],
                 ),
               ),
 
-              const SizedBox(height: 40),
+              SizedBox(height: h * 0.02),
+
+              if (_videoController.value.isInitialized)
+                Center(
+                  child: GestureDetector(
+                    onTap: toggleAvatar,
+                    child: Container(
+                      height: h * 0.23,
+                      width: w * 0.65,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(22),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          FittedBox(
+                            fit: BoxFit.cover,
+                            child: SizedBox(
+                              width: _videoController.value.size.width,
+                              height: _videoController.value.size.height,
+                              child: VideoPlayer(_videoController),
+                            ),
+                          ),
+                          Container(color: Colors.black.withOpacity(0.15)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+              SizedBox(height: h * 0.2),
+
+              Center(
+                child: GestureDetector(
+                  onTap: toggleRecording,
+                  child: AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, _) {
+                      final scale = isRecording ? _scaleAnimation.value : 1.0;
+                      final glow = isRecording ? _glowAnimation.value : 0.0;
+
+                      return Transform.scale(
+                        scale: scale,
+                        child: Container(
+                          width: 95,
+                          height: 95,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: isRecording
+                                  ? [
+                                      Colors.blueAccent.withOpacity(0.9),
+                                      Colors.purpleAccent.withOpacity(0.9),
+                                    ]
+                                  : [Colors.white, Colors.white70],
+                            ),
+                            boxShadow: isRecording
+                                ? [
+                                    BoxShadow(
+                                      color: Colors.purpleAccent.withOpacity(
+                                        glow,
+                                      ),
+                                      blurRadius: 25,
+                                      spreadRadius: 5,
+                                    ),
+                                  ]
+                                : [
+                                    const BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 7,
+                                    ),
+                                  ],
+                          ),
+                          child: Icon(
+                            isRecording ? Icons.stop : Icons.mic,
+                            size: 40,
+                            color: isRecording ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+
+              SizedBox(height: h * 0.03),
+
               AnimatedOpacity(
                 duration: const Duration(milliseconds: 500),
-                opacity: isRecording ? 1.0 : 0.0,
-                child: const Text(
-                  "Listening...",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
+                opacity: isRecording ? 1 : 0,
+                child: const Center(
+                  child: Text(
+                    "Listening...",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
+
               const Spacer(),
 
-              /// START EXERCISE BUTTON
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 27),
-                child: CustomBtn(
-                  onPress: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const MainScreen2(),
-                      ),
-                    );
-                  },
-                  screenHeight: screenHeight,
-                  screenWidth: screenWidth,
-                  text: 'Start Exercise',
-                ),
+              /// 🔹 Start Exercise Button
+              CustomBtn(
+                text: "Start Exercise",
+                screenHeight: h,
+                screenWidth: w,
+                onPress: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MainScreen2()),
+                  );
+                },
               ),
 
-              SizedBox(height: screenHeight * 0.1),
+              SizedBox(height: h * 0.03),
             ],
           ),
         ),

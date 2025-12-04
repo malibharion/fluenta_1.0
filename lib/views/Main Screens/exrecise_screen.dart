@@ -112,7 +112,6 @@ class _ExerciseScreenState extends State<ExerciseScreen>
         backgroundColor: Colors.white,
         body: Stack(
           children: [
-            // Video Avatar -------------------------------------------------
             Positioned(
               top: 50,
               left: 0,
@@ -155,7 +154,6 @@ class _ExerciseScreenState extends State<ExerciseScreen>
               ),
             ),
 
-            // Bottom Controls -----------------------------------------------
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
@@ -163,7 +161,6 @@ class _ExerciseScreenState extends State<ExerciseScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Progress Bar -----------------------------------------
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       height: 12,
@@ -193,7 +190,6 @@ class _ExerciseScreenState extends State<ExerciseScreen>
 
                     const SizedBox(height: 40),
 
-                    // Main Start/Stop Button -------------------------------
                     GestureDetector(
                       onTap: toggleRecording,
                       child: AnimatedBuilder(
@@ -254,7 +250,6 @@ class _ExerciseScreenState extends State<ExerciseScreen>
 
                     const SizedBox(height: 25),
 
-                    // Status or View Result -------------------------------
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 400),
                       child: showResult
